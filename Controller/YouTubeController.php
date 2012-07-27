@@ -2,21 +2,45 @@
 
 class YouTubeController extends YouTubeAppController {
 	
-	public $components = array('Session');
+	public $components = array('Session', 'YouTube.YouTubeDataAPI');
+	private $authData;
+
+	const REDIRECT_URI = 'http://localhost/lsbox/you_tube/you_tube/oauth2callback';
 
 	public function oauth2callback() {
 		$this->autoRender = false;
-		App::uses('HttpSocket', 'Network/Http');
-		$HttpSocket = new HttpSocket();
-		$results = $HttpSocket->post('https://accounts.google.com/o/oauth2/token', array(
-			'code' => $_GET['code'],
-			'client_id' => Configure::read('YouTube.client_id'),
-			'client_secret' => Configure::read('YouTube.client_secret'),
-			'redirect_uri' => 'http://localhost/lsbox/you_tube/you_tube/oauth2callback',
-			'grant_type' => 'authorization_code'
-		), array('redirect' => true));
-		$this->Session->write('YouTube.authJSON', $results->body());
-		$this->redirect($this->Session->read('YouTube.authReferer'));
+		$authData = $this->YouTubeDataAPI->getAccessToken(
+			$_GET['code'],
+			Configure::read('YouTube.client_id'),
+			Configure::read('YouTube.client_secret'),
+			self::REDIRECT_URI
+		);
+		$authData = json_decode($authData);
+
+		try {
+			$this->_saveToken($authData);
+		} catch(CakeException $e) {
+			$e->getMessage();
+		}
+		
+		$this->Session->write('YouTube.Auth.access_token', $authData->access_token);
+		$this->Session->write('YouTube.Auth.refresh_token', $authData->refresh_token);
+		//$this->redirect($this->Session->read('YouTube.authReferer'));
+	}
+
+	private function _saveToken($authData) {
+		$userClass = Configure::read('YouTube.userClass');
+		$userModel = Configure::read('YouTube.userModel');
+		$authComponent = Configure::read('YouTube.authComponent');
+		$userID = $this->Session->read($authComponent.'.'.$userModel.'.id');
+		try {
+			$this->loadModel($userClass, $userID);
+		} catch(MissingModelException $e) {
+			$e->getMessage();
+		}
+		$this->{$userModel}->id = $userID;
+		$this->{$userModel}->Behaviors->load('YouTube.YouTubeAPI');
+		$this->{$userModel}->saveToken($authData->access_token, $authData->refresh_token);
 	}
 
 }

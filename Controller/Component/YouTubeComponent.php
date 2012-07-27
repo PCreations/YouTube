@@ -3,7 +3,7 @@ App::uses('HttpSocket', 'Network/Http');
 
 class YouTubeComponent extends Component {
 	
-	public $components = array('Session', 'YouTubeDataAPI');
+	public $components = array('Session', 'YouTube.YouTubeDataAPI');
 	public $controller;
 	public $modelClass;
 
@@ -31,23 +31,16 @@ class YouTubeComponent extends Component {
  */
 	public function auth($accessType = 'offline') {
 		if(!$this->Session->check('YouTube.Auth')) {
-			if(!$this->Session->check('YouTube.authReferer')) {
-				$this->Session->write('YouTube.authReferer', FULL_BASE_URL . Router::url());
-			}
-			if($this->Session->check('YouTube.authJSON')) {
-				$authData = json_decode($this->Session->read('YouTube.authJSON'));
-				debug($authData);
-			}
-			else {
-				$this->controller->redirect(
-					$this->YouTubeDataAPI->getGrantAccessURL(
-						Configure::read('YouTube.client_id'), 
-						$this->OAUTH2_CALLBACK, 
-						$accessType
-					);
-				);
-			}
+			$this->Session->write('YouTube.authReferer', FULL_BASE_URL . Router::url());
+			$this->controller->redirect(
+				$this->YouTubeDataAPI->getGrantAccessURL(
+					Configure::read('YouTube.client_id'), 
+					$this->OAUTH2_CALLBACK, 
+					$accessType
+				)
+			);
 		}
+		debug($this->Session->read('YouTube.Auth'));
 	}
 
 	

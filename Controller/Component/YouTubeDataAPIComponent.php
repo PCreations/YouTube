@@ -7,6 +7,10 @@ class YouTubeDataAPIComponent extends Component {
 		return YouTubeDataAPI::getGrantAccessUrl($clientID, $redirectURI, $accessType);
 	}
 
+	public function getAccessToken($code, $clientID, $clientSecret, $redirectURI) {
+		return YouTubeDataAPI::getAccessToken($code, $clientID, $clientSecret, $redirectURI);
+	}
+
 }
 
 ?>
