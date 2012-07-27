@@ -30,7 +30,7 @@ class YouTubeComponent extends Component {
  * Called to authenticate user with YouTube via Oauth2.0 protocol
  */
 	public function auth($accessType = 'offline') {
-		if(!$this->Session->check('YouTube.Auth')) {
+		if(!$this->Session->check('YouTube.Auth') && !$this->Session->check('YouTube.Auth.access_denied')) {
 			$this->Session->write('YouTube.authReferer', FULL_BASE_URL . Router::url());
 			$this->controller->redirect(
 				$this->YouTubeDataAPI->getGrantAccessURL(
@@ -40,7 +40,7 @@ class YouTubeComponent extends Component {
 				)
 			);
 		}
-		debug($this->Session->read('YouTube.Auth'));
+		return $this->Session->check('YouTube.Auth');
 	}
 
 	
@@ -68,6 +68,10 @@ class YouTubeComponent extends Component {
 			debug($this->Session->read('YouTube.authSubReferer'));
 			return new Zend_Gdata_YouTube(Zend_Gdata_AuthSub::getHttpClient($this->Session->read('YouTube.token')));
 		}
+	}
+
+	public function getAccessToken() {
+		return $this->Session->read('YouTube.Auth.access_token');
 	}
 
 }

@@ -9,6 +9,11 @@ class YouTubeController extends YouTubeAppController {
 
 	public function oauth2callback() {
 		$this->autoRender = false;
+		//User refused connection
+		if(isset($_GET['error'])) {
+			$this->Session->write('YouTube.Auth.access_denied', 'true');
+			$this->redirect($this->Session->read('YouTube.authReferer'));
+		}
 		$authData = $this->YouTubeDataAPI->getAccessToken(
 			$_GET['code'],
 			Configure::read('YouTube.client_id'),
@@ -25,7 +30,7 @@ class YouTubeController extends YouTubeAppController {
 		
 		$this->Session->write('YouTube.Auth.access_token', $authData->access_token);
 		$this->Session->write('YouTube.Auth.refresh_token', $authData->refresh_token);
-		//$this->redirect($this->Session->read('YouTube.authReferer'));
+		$this->redirect($this->Session->read('YouTube.authReferer'));
 	}
 
 	private function _saveToken($authData) {

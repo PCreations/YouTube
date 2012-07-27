@@ -1,10 +1,11 @@
 <?php
+App::uses('YouTubeDataAPI', 'YouTube.Lib');
 
-class YouTubeAPIBehavior extends ModelBehavior {
+class YouTubeBehavior extends ModelBehavior {
 	
-	private $api;
 	const ACCESS_TOKEN_FIELD = 'yt_access_token';
 	const REFRESH_TOKEN_FIELD = 'yt_refresh_token';
+	private $api;
 
 	public $_defaults = array();
 
@@ -13,12 +14,8 @@ class YouTubeAPIBehavior extends ModelBehavior {
 		$this->api = new Zend_Gdata_Youtube();
 	}
 
-	public function api() {
-		return $this->api;
-	}
-
-	public function getVideoData(Model $model, $id) {
-		return $this->api->getVideoFeed('https://gdata.youtube.com/feeds/api/videos/videoid?v=' . $id);
+	public function getAuthUserVideos(Model $model, $accessToken) {
+		return $this->getVideoFeed(YouTubeDataAPI::USER_VIDEO_URL, YouTubeDataAPI::CURRENT_LOGIN_USER, $accessToken);
 	}
 
 	public function saveToken(Model $model, $accessToken, $refreshToken) {
@@ -30,6 +27,10 @@ class YouTubeAPIBehavior extends ModelBehavior {
 			debug($model->validationErrors());
 			echo "Erreur save";
 		}
+	}
+
+	private function getVideoFeed($location, $user, $accessToken = null) {
+		return YouTubeDataAPI::getUserVideos($this->api, $location, $user, $accessToken);
 	}
 
 }

@@ -43,6 +43,14 @@ class YouTubeHelper extends AppHelper {
 		);
 	}
 
+	public function blocInfos($video, $element = 'YouTube.youtube_bloc_infos') {
+		echo $this->view->element($element, array(
+			'title' => $video->getVideoTitle(),
+			'description' => $video->getVideoDescription(),
+			'thumbnails' => $video->getVideoThumbnails()
+		));
+	}
+
 }
 
 ?>
