@@ -17,6 +17,7 @@ class YouTubeDataAPI {
 	const GOOGLE_TOKEN_URL = 'https://accounts.google.com/o/oauth2/token';
 	const YOUTUBE_SCOPE = 'https://gdata.youtube.com';
 	const USER_VIDEO_URL = 'https://gdata.youtube.com/feeds/api/users/:user/uploads';
+	const VIDEO_URL = 'https://gdata.youtube.com/feeds/api/videos/:videoid?v=2';
 	const CURRENT_LOGIN_USER = 'default';
 	const GRANT_TOKEN = 'authorization_code';
 	const GRANT_REFRESH = 'refresh_token';
@@ -54,6 +55,12 @@ class YouTubeDataAPI {
 		$url = String::insert($location, compact('user'));
 		$url = ($accessToken == null) ? $url : $url . '?access_token=' . $accessToken;
 		return $api->getVideoFeed($url);
+	}
+
+	public static function getVideo($api, $videoID, $accessToken) {
+		$url = String::insert($videoID, array('videoid' => $videoID));
+		$url = ($accessToken == null) ? $url : $url . '&access_token=' . $accessToken;
+		return ($accessToken == null) ? $api->getVideoEntry($videoID) : $api->getFullVideoEntry($url);
 	}
 
 	private static function _buildURL($url, $params) {

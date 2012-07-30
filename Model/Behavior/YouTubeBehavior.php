@@ -29,8 +29,24 @@ class YouTubeBehavior extends ModelBehavior {
 		}
 	}
 
+	public function getVideo($videoID, $accessToken) {
+		return YouTubeDataAPI::getVideo($this->api, $videoID, $accessToken);
+	}
+
 	private function getVideoFeed($location, $user, $accessToken = null) {
 		return YouTubeDataAPI::getUserVideos($this->api, $location, $user, $accessToken);
+	}
+
+	public function getSettings() {
+		return $this->_defaults;
+	}
+
+	public function getAccessTokenField() {
+		return self::ACCESS_TOKEN_FIELD;
+	}
+
+	public function getRefreshTokenField() {
+		return self::REFRESH_TOKEN_FIELD;
 	}
 
 }

@@ -4,10 +4,12 @@ class YouTubeHelper extends AppHelper {
 	
 	public $helpers = array('Html', 'Form', 'Js');
 	public $view;
+	public $settings = array();
 
 	public function __construct(View $View, $settings = array()) {
 		parent::__construct($View, $settings);
 		$this->view = $View;
+		$this->settings = Set::merge($this->settings, $settings);
 	}
 
 	public function embed($flashPlayerUrl, $width,  $height, $allowFullScreen = true) {
@@ -47,8 +49,14 @@ class YouTubeHelper extends AppHelper {
 		echo $this->view->element($element, array(
 			'title' => $video->getVideoTitle(),
 			'description' => $video->getVideoDescription(),
-			'thumbnails' => $video->getVideoThumbnails()
+			'thumbnails' => $video->getVideoThumbnails(),
+			'duration' => $video->getVideoDuration(),
+			'id' => $video->getVideoId(),
 		));
+	}
+
+	public function createHiddenFields($video) {
+		echo $this->Form->hidden('yt_id', array('id' => 'yt_id'));
 	}
 
 }

@@ -30,6 +30,26 @@ class YouTubeComponent extends Component {
  * Called to authenticate user with YouTube via Oauth2.0 protocol
  */
 	public function auth($accessType = 'offline') {
+		$accessTokenField = $this->controller->{$this->modelClass}->getAccessTokenField();
+		$refreshTokenField = $this->controller->{$this->modelClass}->getRefreshTokenField();
+
+		/* Check for stored authenticate data */
+		$userModel = Configure::read('YouTube.userModel');
+		$this->controller->loadModel(Configure::read('YouTube.userClass'));
+		$authData = $this->controller->{$userModel}->find('first', array(
+			'conditions' => array(
+				$userModel.'.id' => $this->Session->read(Configure::read('YouTube.authComponent').'.'.$userModel.'.id'),
+			),
+			'fields' => array(
+				$accessTokenField,
+				$refreshTokenField,
+			),
+			'contain' => array(),
+		));
+		if(!empty($authData)) {
+			$this->Session->write('YouTube.Auth.access_token', $authData[$userModel][$accessTokenField]);
+			$this->Session->write('YouTube.Auth.refresh_token', $authData[$userModel][$refreshTokenField]);
+		}
 		if(!$this->Session->check('YouTube.Auth') && !$this->Session->check('YouTube.Auth.access_denied')) {
 			$this->Session->write('YouTube.authReferer', FULL_BASE_URL . Router::url());
 			$this->controller->redirect(
@@ -70,8 +90,25 @@ class YouTubeComponent extends Component {
 		}
 	}
 
+	public function setPrefillData($videoID) {
+		$accessToken = $this->getAccessToken();
+		try {
+			$video = $this->controller->{$this->modelClass}->getVideo($videoID, $accessToken);
+		}
+		catch(Zend_Gdata_App_HttpException $e) {
+			$this->Session->write('YouTube.Auth', YouTubeDataAPI::refreshToken($this->Session->read('YouTube.Auth')));
+			$accessToken = $this->getAccessToken();
+			$video = $this->controller->{$this->modelClass}->getVideo($videoID, $accessToken);
+		}
+		$videoFields = $this->controller->{$this->modelClass}->getSettings();
+		$this->controller->request->data[$this->modelClass][$videoFields['title']] = $video->getVideoTitle();
+		$this->controller->request->data[$this->modelClass][$videoFields['description']] = $video->getVideoDescription();
+		$this->controller->request->data[$this->modelClass][$videoFields['duration']] = $video->getVideoDuration();
+		unset($this->controller->request->data[$this->modelClass]['yt_id']);
+	}
+
 	public function getAccessToken() {
-		return $this->Session->read('YouTube.Auth.access_token');
+		return $this->Session->check('YouTube.Auth.access_token') ? $this->Session->read('YouTube.Auth.access_token') : null;
 	}
 
 }
