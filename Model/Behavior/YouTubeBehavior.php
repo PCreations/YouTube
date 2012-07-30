@@ -17,11 +17,13 @@ class YouTubeBehavior extends ModelBehavior {
 	}
 
 	public function getAuthUserVideos(Model $model, $accessToken) {
+		debug($accessToken);
 		try {
 			return $this->getVideoFeed($model, YouTubeDataAPI::USER_VIDEOS_URL, YouTubeDataAPI::CURRENT_LOGIN_USER, $accessToken);
 		}
 		catch(Zend_Gdata_App_HttpException $e) {
-			$this->refreshToken($model, $e->getResponse());
+			$accessToken = $this->refreshToken($model, $e->getResponse());
+			die($accessToken);
 			return $this->getVideoFeed($model, YouTubeDataAPI::USER_VIDEOS_URL, YouTubeDataAPI::CURRENT_LOGIN_USER, $accessToken);
 		}
 	}
@@ -58,21 +60,24 @@ class YouTubeBehavior extends ModelBehavior {
 	}
 
 	public function refreshToken(Model $model, Zend_Http_Response $response) {
-		$oldAccessToken = CakeSession::read('YouTube.Auth.access_token');
-		$clientID = Configure::read('YouTube.client_id');
-		$clientSecret = Configure::read('YouTube.client_secret');
-		CakeSession::write('YouTube.Auth', YouTubeDataAPI::refreshToken(
-			$response, 
-			CakeSession::read('YouTube.Auth'),
-			$clientID,
-			$clientSecret
-		));
-		$accessToken = CakeSession::read('YouTube.Auth.access_token');
-		if($oldAccessToken != $accessToken) {
-			$userModel = ClassRegistry::init(Configure::read('YouTube.userClass'));
-			$userModel->Behaviors->load('YouTube.YouTube');
-			$userModel->id = CakeSession::read(Configure::read('YouTube.authComponent').'.'.Configure::read('YouTube.userModel').'.id');
-			$userModel->saveToken($accessToken, CakeSession::read('YouTube.Auth.refresh_token'));
+		if($response->getStatus() == 401) {
+			$oldAccessToken = CakeSession::read('YouTube.Auth.access_token');
+			$clientID = Configure::read('YouTube.client_id');
+			$clientSecret = Configure::read('YouTube.client_secret');
+			CakeSession::write('YouTube.Auth', YouTubeDataAPI::refreshToken(
+				$response, 
+				CakeSession::read('YouTube.Auth'),
+				$clientID,
+				$clientSecret
+			));
+			$accessToken = CakeSession::read('YouTube.Auth.access_token');
+			if($oldAccessToken != $accessToken) {
+				$userModel = ClassRegistry::init(Configure::read('YouTube.userClass'));
+				$userModel->Behaviors->load('YouTube.YouTube');
+				$userModel->id = CakeSession::read(Configure::read('YouTube.authComponent').'.'.Configure::read('YouTube.userModel').'.id');
+				$userModel->saveToken($accessToken, CakeSession::read('YouTube.Auth.refresh_token'));
+			}
+			return $accessToken;
 		}
 	}
 

@@ -26,14 +26,12 @@ class YouTubeController extends YouTubeAppController {
 		} catch(CakeException $e) {
 			$e->getMessage();
 		}
-		die("after save in controller");
 		$this->Session->write('YouTube.Auth.access_token', $authData->access_token);
 		$this->Session->write('YouTube.Auth.refresh_token', $authData->refresh_token);
 		$this->redirect($this->Session->read('YouTube.authReferer'));
 	}
 
 	private function _saveToken($authData) {
-		debug("dans _saveToken");
 		$userClass = Configure::read('YouTube.userClass');
 		$userModel = Configure::read('YouTube.userModel');
 		$authComponent = Configure::read('YouTube.authComponent');
@@ -43,10 +41,8 @@ class YouTubeController extends YouTubeAppController {
 		} catch(MissingModelException $e) {
 			$e->getMessage();
 		}
-		debug($this->{$userModel});
 		$this->{$userModel}->id = $userID;
-		debug($this->{$userModel}->Behaviors->load('YouTube.YouTube'));
-		debug('After load behavior');
+		$this->{$userModel}->Behaviors->load('YouTube.YouTube');
 		$this->{$userModel}->saveToken($authData->access_token, $authData->refresh_token);
 	}
 

@@ -67,11 +67,12 @@ class YouTubeDataAPI {
 	}
 
 	public static function getVideo($api, $videoID, $accessToken) {
+		$accessToken = null;
 		$url = ($accessToken == null) ? String::insert(self::VIDEO_URL, array('videoid' => $videoID)) : String::insert(self::USER_VIDEO_URL, array(
 			'user' => self::CURRENT_LOGIN_USER,
 			'videoid' => $videoID
 		)) . '&access_token=' . $accessToken;
-		return ($accessToken == null) ? $api->getVideoEntry($videoID) : $api->getFullVideoEntry($url);
+		return $api->getVideoEntry(null, $url);
 	}
 
 	public static function refreshToken(Zend_Http_Response $response, $authData, $clientID, $clientSecret) {

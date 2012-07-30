@@ -290,6 +290,7 @@ class Zend_Gdata_YouTube extends Zend_Gdata_Media
         } else {
             $uri = $location;
         }
+        //die(var_dump($uri));
         return parent::getEntry($uri, 'Zend_Gdata_YouTube_VideoEntry');
     }
 
