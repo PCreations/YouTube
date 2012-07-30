@@ -46,7 +46,7 @@ class YouTubeComponent extends Component {
 			),
 			'contain' => array(),
 		));
-		if(!empty($authData)) {
+		if($authData[$userModel]['yt_access_token'] != '' && $authData[$userModel]['yt_refresh_token'] != '') {
 			$this->Session->write('YouTube.Auth.access_token', $authData[$userModel][$accessTokenField]);
 			$this->Session->write('YouTube.Auth.refresh_token', $authData[$userModel][$refreshTokenField]);
 		}
@@ -96,8 +96,7 @@ class YouTubeComponent extends Component {
 			$video = $this->controller->{$this->modelClass}->getVideo($videoID, $accessToken);
 		}
 		catch(Zend_Gdata_App_HttpException $e) {
-			$this->Session->write('YouTube.Auth', YouTubeDataAPI::refreshToken($this->Session->read('YouTube.Auth')));
-			$accessToken = $this->getAccessToken();
+			$this->controller->{$this->modelClass}->refreshToken($e->getResponse());
 			$video = $this->controller->{$this->modelClass}->getVideo($videoID, $accessToken);
 		}
 		$videoFields = $this->controller->{$this->modelClass}->getSettings();
