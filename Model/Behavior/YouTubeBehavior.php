@@ -22,7 +22,6 @@ class YouTubeBehavior extends ModelBehavior {
 		}
 		catch(Zend_Gdata_App_HttpException $e) {
 			$accessToken = $this->refreshToken($model, $e->getResponse());
-			die($accessToken);
 			return $this->getVideoFeed($model, YouTubeDataAPI::USER_VIDEOS_URL, YouTubeDataAPI::CURRENT_LOGIN_USER, $accessToken);
 		}
 	}
@@ -60,10 +59,9 @@ class YouTubeBehavior extends ModelBehavior {
 			));
 			$accessToken = CakeSession::read('YouTube.Auth.access_token');
 			if($oldAccessToken != $accessToken) {
-				$userModel = ClassRegistry::init(Configure::read('YouTube.userClass'));
-				$userModel->Behaviors->load('YouTube.YouTube');
-				$userModel->id = CakeSession::read(Configure::read('YouTube.authComponent').'.'.Configure::read('YouTube.userModel').'.id');
-				$userModel->saveToken($accessToken, CakeSession::read('YouTube.Auth.refresh_token'));
+				$YouTubeAccess = ClassRegistry::init('YouTube.YouTubeAccess');
+				$userID = CakeSession::read(Configure::read('YouTube.authComponent').'.'.Configure::read('YouTube.userModel').'.id');
+				$YouTubeAccess->saveToken($userID, $accessToken, CakeSession::read('YouTube.Auth.refresh_token'));
 			}
 			return $accessToken;
 		}
