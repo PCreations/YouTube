@@ -7,8 +7,8 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
 $access = array(
 	'client_id' => '1002534905775.apps.googleusercontent.com',
 	'client_secret' => 'HNGkR3LiMhvDAJkAp5PXrO3w',
-	'authComponent' => 'UserAuth',
-	'userClass' => 'Usermgmt.User',
+	'authComponent' => 'Auth',
+	'userClass' => 'Users.User',
 	'userModel' => 'User'
 );
 Configure::write('YouTube', $access);

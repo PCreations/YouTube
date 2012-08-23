@@ -12,12 +12,11 @@ class YouTubeBehavior extends ModelBehavior {
 	public $_defaults = array();
 
 	public function setup(Model $model, $settings = array()) {
-		$this->_defaults = Set::merge($this->_defaults, $settings);
+		$this->_defaults = Hash::merge($this->_defaults, $settings);
 		$this->api = new Zend_Gdata_Youtube();
 	}
 
 	public function getAuthUserVideos(Model $model, $accessToken) {
-		debug($accessToken);
 		try {
 			return $this->getVideoFeed($model, YouTubeDataAPI::USER_VIDEOS_URL, YouTubeDataAPI::CURRENT_LOGIN_USER, $accessToken);
 		}
@@ -25,17 +24,6 @@ class YouTubeBehavior extends ModelBehavior {
 			$accessToken = $this->refreshToken($model, $e->getResponse());
 			die($accessToken);
 			return $this->getVideoFeed($model, YouTubeDataAPI::USER_VIDEOS_URL, YouTubeDataAPI::CURRENT_LOGIN_USER, $accessToken);
-		}
-	}
-
-	public function saveToken(Model $model, $accessToken, $refreshToken) {
-		$model->data[$model->alias][self::ACCESS_TOKEN_FIELD] = $accessToken;
-		$model->data[$model->alias][self::REFRESH_TOKEN_FIELD] = $refreshToken;
-		debug($model->id);
-		debug($model->data);
-		if(!$model->save($model->data[$model->alias], false)) {
-			debug($model->validationErrors());
-			echo "Erreur save";
 		}
 	}
 

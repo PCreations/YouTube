@@ -9,7 +9,7 @@ class YouTubeHelper extends AppHelper {
 	public function __construct(View $View, $settings = array()) {
 		parent::__construct($View, $settings);
 		$this->view = $View;
-		$this->settings = Set::merge($this->settings, $settings);
+		$this->settings = Hash::merge($this->settings, $settings);
 	}
 
 	public function embed($flashPlayerUrl, $width,  $height, $allowFullScreen = true) {

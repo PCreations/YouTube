@@ -37,13 +37,11 @@ class YouTubeController extends YouTubeAppController {
 		$authComponent = Configure::read('YouTube.authComponent');
 		$userID = $this->Session->read($authComponent.'.'.$userModel.'.id');
 		try {
-			$this->loadModel($userClass, $userID);
+			$this->loadModel('YouTube.YouTubeAccess');
 		} catch(MissingModelException $e) {
 			$e->getMessage();
 		}
-		$this->{$userModel}->id = $userID;
-		$this->{$userModel}->Behaviors->load('YouTube.YouTube');
-		$this->{$userModel}->saveToken($authData->access_token, $authData->refresh_token);
+		$this->YouTubeAccess->saveToken($userID, $authData->access_token, $authData->refresh_token);
 	}
 
 }

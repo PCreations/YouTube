@@ -35,20 +35,16 @@ class YouTubeComponent extends Component {
 
 		/* Check for stored authenticate data */
 		$userModel = Configure::read('YouTube.userModel');
-		$this->controller->loadModel(Configure::read('YouTube.userClass'));
-		$authData = $this->controller->{$userModel}->find('first', array(
+		$test = $this->controller->loadModel('YouTube.YouTubeAccess');
+		$authData = $this->controller->YouTubeAccess->find('first', array(
 			'conditions' => array(
-				$userModel.'.id' => $this->Session->read(Configure::read('YouTube.authComponent').'.'.$userModel.'.id'),
+				'YouTubeAccess.user_id' => $this->Session->read(Configure::read('YouTube.authComponent') . '.User.id')
 			),
-			'fields' => array(
-				$accessTokenField,
-				$refreshTokenField,
-			),
-			'contain' => array(),
+			'contain' => array()
 		));
-		if($authData[$userModel]['yt_access_token'] != '' && $authData[$userModel]['yt_refresh_token'] != '') {
-			$this->Session->write('YouTube.Auth.access_token', $authData[$userModel][$accessTokenField]);
-			$this->Session->write('YouTube.Auth.refresh_token', $authData[$userModel][$refreshTokenField]);
+		if($authData !== false && $authData['YouTubeAccess']['yt_access_token'] != '' && $authData['YouTubeAccess']['yt_refresh_token'] != '') {
+			$this->Session->write('YouTube.Auth.access_token', $authData['YouTubeAccess'][$accessTokenField]);
+			$this->Session->write('YouTube.Auth.refresh_token', $authData['YouTubeAccess'][$refreshTokenField]);
 		}
 		if(!$this->Session->check('YouTube.Auth') && !$this->Session->check('YouTube.Auth.access_denied')) {
 			$this->Session->write('YouTube.authReferer', FULL_BASE_URL . Router::url());
