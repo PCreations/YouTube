@@ -12,7 +12,7 @@ class YouTubeHelper extends AppHelper {
 		$this->settings = Hash::merge($this->settings, $settings);
 	}
 
-	public function embed($flashPlayerUrl, $width,  $height, $allowFullScreen = true) {
+	public function embed($flashPlayerUrl, $width = 640,  $height = 360, $allowFullScreen = true) {
 		$objectParams = array(
 			'type' => 'application/x-shockwave-flash',
 			'data' => $flashPlayerUrl,
@@ -57,6 +57,8 @@ class YouTubeHelper extends AppHelper {
 
 	public function createHiddenFields($video) {
 		echo $this->Form->hidden('yt_id', array('id' => 'yt_id'));
+		/* hidden field to prevent video saving until all elements are filled */
+		echo $this->Form->hidden('completeForm');
 	}
 
 }

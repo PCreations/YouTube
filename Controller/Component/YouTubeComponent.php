@@ -99,7 +99,8 @@ class YouTubeComponent extends Component {
 		$this->controller->request->data[$this->modelClass][$videoFields['title']] = $video->getVideoTitle();
 		$this->controller->request->data[$this->modelClass][$videoFields['description']] = $video->getVideoDescription();
 		$this->controller->request->data[$this->modelClass][$videoFields['duration']] = $video->getVideoDuration();
-		unset($this->controller->request->data[$this->modelClass]['yt_id']);
+		unset($this->controller->request->data[$this->modelClass]['completeForm']);
+		$this->controller->set(array('yt_flashPlayerUrl' => $video->getFlashPlayerUrl()));
 	}
 
 	public function getAccessToken() {
